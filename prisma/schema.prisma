@@ -1,0 +1,300 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String   @map("user_id")
+  type              String?
+  provider          String
+  providerAccountId String   @map("provider_account_id")
+  token_type        String?
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  scope             String?
+  id_token          String?  @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String?  @map("user_id")
+  sessionToken String   @unique @map("session_token") @db.VarChar(255)
+  accessToken  String?  @map("access_token") @db.Text
+  expires      DateTime
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+model Profile {
+  id           Int      @id @default(autoincrement())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  bio          String?
+  education    Education[]
+  experience   Experience[]
+  skills       Skill[]
+  achievements Achievement[]
+  avatar       String?
+  reviews   Review[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  rating       Int
+  comment      String
+  reviewerName String
+  reviewerId   String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  profile      Profile  @relation(fields: [profileId], references: [id])
+  profileId    Int  
+
+
+  @@index([profileId])
+}
+
+model Experience {
+  id          Int       @id @default(autoincrement())
+  profileId   Int
+  profile     Profile   @relation(fields: [profileId], references: [id])
+  title       String
+  companyName String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+}
+
+model Education {
+  id          Int       @id @default(autoincrement())
+  profileId   Int
+  profile     Profile   @relation(fields: [profileId], references: [id])
+  degree      String
+  institution String
+  startDate   DateTime
+  endDate     DateTime
+  description String
+}
+
+model Skill {
+  id          Int       @id @default(autoincrement())
+  profileId   Int
+  profile     Profile   @relation(fields: [profileId], references: [id])
+  skillName   String
+  proficiency Int
+}
+
+model Achievement {
+  id          Int       @id @default(autoincrement())
+  profileId   Int
+  profile     Profile   @relation(fields: [profileId], references: [id])
+  title       String
+  description String
+  date        DateTime
+}
+
+model Invite {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  email     String
+  accepted  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id          String           @id @default(uuid())
+  fullName    String
+  email       String           @unique
+  password    String
+  phoneNumber String?
+  address     String?
+  role        String
+  createdAt   DateTime         @default(now())
+  leaderboard Leaderboard[]
+  invites     Invite[]        
+  profile     Profile?         
+  accounts    Account[]       
+  sessions    Session[]       
+  levelProgress UserLevelProgress[] 
+  userBadges    UserBadge[]    
+  userAnswerSubmissions UserAnswerSubmission[]
+  referralCode String @unique @default(uuid())
+  referredBy   String?
+  applications Application[]
+  jobsPosted   Job[]
+  resetPasswordToken String?
+  resetPasswordExpires DateTime?
+}
+
+model Category {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  subCategories SubCategory[] 
+}
+
+model SubCategory {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  categoryId  Int        
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade) 
+  questions   Question[]  
+   userLevelProgress UserLevelProgress[]
+  userAnswerSubmissions UserAnswerSubmission[]
+
+}
+
+model Question {
+  id            Int        @id @default(autoincrement())
+  level         Level      @relation(fields: [levelId], references: [id])
+  levelId       Int
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id]) 
+  subCategoryId Int?
+  question      String
+  correctAnswer Int
+  options Json
+  points Point @relation(fields: [pointId], references: [id])
+  pointId Int
+  createdAt     DateTime   @default(now())
+  userAnswerSubmissions UserAnswerSubmission[]
+}
+
+model Level {
+  id        Int        @id @default(autoincrement())
+  level     Int
+  point     Point      @relation(fields: [pointId], references: [id])
+  pointId   Int
+  createdAt DateTime   @default(now())
+  questions Question[] 
+
+  userProgress UserLevelProgress[]  
+  userAnswerSubmissions UserAnswerSubmission[]
+
+}
+
+model UserLevelProgress {
+  id          Int        @id @default(autoincrement())
+  userId      String     @map("user_id")
+  levelId     Int        @map("level_id")
+  user        User       @relation(fields: [userId], references: [id])
+  level       Level      @relation(fields: [levelId], references: [id])
+  subcategory SubCategory @relation(fields: [subcategoryId], references: [id])
+  subcategoryId Int      
+  createdAt   DateTime   @default(now())
+
+  @@unique([userId, levelId,subcategoryId])  
+}
+
+
+model Badge {
+  id              Int         @id @default(autoincrement())
+  name            String
+  description     String
+  icon        String?
+  pointThreshold  String?      
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  userBadges      UserBadge[]  
+}
+
+model UserBadge {
+  id          Int      @id @default(autoincrement())
+  userId      String   @map("user_id")
+  badgeId     Int      @map("badge_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge       Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  earnedAt    DateTime @default(now())  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, badgeId])  
+  @@map("user_badges")
+}
+
+model Leaderboard {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String      @unique
+  totalPoint Int
+  createdAt  DateTime @default(now())
+}
+
+model Point {
+  id        Int      @id @default(autoincrement())
+  point     Int     
+  createdAt DateTime @default(now())
+  levels    Level[]  
+  questions Question[]
+}
+
+model UserAnswerSubmission {
+  id            Int        @id @default(autoincrement())
+  userId        String     @map("user_id")
+  questionId    Int        @map("question_id")
+  answer        String    
+  isCorrect     Boolean    
+  levelId       Int        @map("level_id")
+  subcategoryId Int        @map("subcategory_id")
+  createdAt     DateTime   @default(now())
+
+  user          User       @relation(fields: [userId], references: [id])
+  question      Question   @relation(fields: [questionId], references: [id])
+  level         Level      @relation(fields: [levelId], references: [id])
+  subcategory   SubCategory @relation(fields: [subcategoryId], references: [id])
+
+  @@map("user_answer_submissions")
+}
+
+model Job {
+  id            String        @id @default(uuid())
+  title         String
+  company       String
+  description   String @db.LongText
+  requirements  Json
+  location      String
+  salary        Int
+  applications  Application[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  postedBy      User     @relation(fields: [postedById], references: [id])
+  postedById    String
+}
+
+model Application {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  job       Job      @relation(fields: [jobId], references: [id])
+  jobId     String
+  status    Status   @default(PENDING)
+  createdAt   DateTime @default(now())
+}
+
+enum Status {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
