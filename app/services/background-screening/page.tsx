@@ -8,7 +8,7 @@ export default function BackgroundScreeningPage() {
       <ServiceHero
         title="Background Screening"
         description="Comprehensive background checks and verification services for confident hiring decisions."
-        imageSrc="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1920&h=500&q=80"
+        imageSrc="https://guhuza.com/images/landing/background_screening_main.jpg"
       />
 
       <main className="flex-grow container mx-auto px-4 py-12">

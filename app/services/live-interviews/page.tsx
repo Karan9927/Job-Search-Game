@@ -7,8 +7,8 @@ export default function LiveInterviewsPage() {
     <div className="min-h-screen bg-background flex flex-col">
       <ServiceHero
         title="Live Interviews"
-        description="Conduct seamless virtual interviews with our advanced video conferencing platform designed specifically for recruitment."
-        imageSrc="https://images.unsplash.com/photo-1516387938699-a93567ec168e?auto=format&fit=crop&w=1920&h=500&q=80"
+          description="Post your job and allow our matching algorithm to find you the top candidates to interview directly on our platform."
+        imageSrc="https://guhuza.com/images/landing/live_interview/live_interviews_background.jpg"
       />
 
       <main className="flex-grow container mx-auto px-4 py-12">

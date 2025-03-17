@@ -146,7 +146,7 @@ export default function SignupForm() {
                 onClick={togglePasswordVisibility}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {!showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
@@ -167,21 +167,10 @@ export default function SignupForm() {
                 onClick={toggleConfirmPasswordVisibility}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
               >
-                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {!showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
-
-          {/* <div className="space-y-2">
-            <Label htmlFor="phoneNumber">Phone Number</Label>
-            <Input
-              id="phoneNumber"
-              type="tel"
-              value={formData.phoneNumber || ""}
-              onChange={(e) => handleChange("phoneNumber", e.target.value)}
-              disabled={isLoading}
-            />
-          </div> */}
 
           <div className="space-y-2">
             <Label htmlFor="address">

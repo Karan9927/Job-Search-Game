@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -50,7 +50,7 @@ model Profile {
   skills       Skill[]
   achievements Achievement[]
   avatar       String?
-  reviews   Review[]
+  reviews      Review[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -64,8 +64,7 @@ model Review {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   profile      Profile  @relation(fields: [profileId], references: [id])
-  profileId    Int  
-
+  profileId    Int
 
   @@index([profileId])
 }
@@ -127,7 +126,7 @@ model User {
   address     String?
   role        String
   createdAt   DateTime         @default(now())
-  leaderboard Leaderboard[]
+  leaderboard Leaderboard?
   invites     Invite[]        
   profile     Profile?         
   accounts    Account[]       
@@ -161,9 +160,8 @@ model SubCategory {
   updatedAt   DateTime    @updatedAt
   category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade) 
   questions   Question[]  
-   userLevelProgress UserLevelProgress[]
+  userLevelProgress UserLevelProgress[]
   userAnswerSubmissions UserAnswerSubmission[]
-
 }
 
 model Question {
@@ -174,9 +172,9 @@ model Question {
   subCategoryId Int?
   question      String
   correctAnswer Int
-  options Json
-  points Point @relation(fields: [pointId], references: [id])
-  pointId Int
+  options       Json
+  points        Point      @relation(fields: [pointId], references: [id])
+  pointId       Int
   createdAt     DateTime   @default(now())
   userAnswerSubmissions UserAnswerSubmission[]
 }
@@ -188,10 +186,8 @@ model Level {
   pointId   Int
   createdAt DateTime   @default(now())
   questions Question[] 
-
   userProgress UserLevelProgress[]  
   userAnswerSubmissions UserAnswerSubmission[]
-
 }
 
 model UserLevelProgress {
@@ -204,18 +200,17 @@ model UserLevelProgress {
   subcategoryId Int      
   createdAt   DateTime   @default(now())
 
-  @@unique([userId, levelId,subcategoryId])  
+  @@unique([userId, levelId, subcategoryId])  
 }
-
 
 model Badge {
   id              Int         @id @default(autoincrement())
   name            String
   description     String
-  icon        String?
+  icon            String?
   pointThreshold  String?      
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
   userBadges      UserBadge[]  
 }
 
@@ -236,7 +231,7 @@ model UserBadge {
 model Leaderboard {
   id         Int      @id @default(autoincrement())
   user       User     @relation(fields: [userId], references: [id])
-  userId     String      @unique
+  userId     String   @unique
   totalPoint Int
   createdAt  DateTime @default(now())
 }
@@ -271,15 +266,15 @@ model Job {
   id            String        @id @default(uuid())
   title         String
   company       String
-  description   String @db.LongText
+  description   String
   requirements  Json
   location      String
   salary        Int
   applications  Application[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  postedBy      User     @relation(fields: [postedById], references: [id])
+  postedBy      User          @relation(fields: [postedById], references: [id])
   postedById    String
 }
 
@@ -290,7 +285,7 @@ model Application {
   job       Job      @relation(fields: [jobId], references: [id])
   jobId     String
   status    Status   @default(PENDING)
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 enum Status {

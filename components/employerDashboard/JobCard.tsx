@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { X } from "lucide-react";
 import { deleteJob } from "@/lib/employerDashboardActions";
 import { toast } from "sonner";
+import { formatSalary } from "@/lib/utils";
 
 interface JobCardProps {
   job: Job;
@@ -41,7 +42,7 @@ export function JobCard({ job, onSelect, onJobDelete }: JobCardProps) {
           Location: {job.location}
         </p>
         <p className="text-sm text-muted-foreground">
-          Salary: ${job.salary.toLocaleString()}
+          Salary: ${formatSalary(job.salary)}
         </p>
       </CardContent>
     </Card>

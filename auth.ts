@@ -1,3 +1,5 @@
+
+export const runtime = 'nodejs'; 
 import NextAuth, { User } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "./prisma/prisma";
@@ -111,3 +113,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+

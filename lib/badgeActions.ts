@@ -65,7 +65,7 @@ async function checkAndAssignBadges(userId: string) {
 
   // 1. Level Master Badge
   if (
-    userProgress.some((p) => p.level.id === 3) && // Adjust the level condition as necessary
+    userProgress.some((p) => p.level.id === 3) && 
     !userBadges.some((b) => b.badge.name === "Level Master")
   ) {
     badgesToAssign.push("Level Master");

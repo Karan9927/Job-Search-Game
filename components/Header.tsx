@@ -14,12 +14,6 @@ import Spinner from "./ui/spinner/spinner";
 import HeaderMenu from "./ui/header-menu";
 
 export function Header() {
-  const handleBookDemo = () => {
-    window.open(
-      "https://calendly.com/karansingh-ks7417/30min?month=2025-02",
-      "_blank"
-    );
-  };
   const { data, status } = useSession();
   const isLoggedIn = status === "authenticated";
   const isLoading = status === "loading";

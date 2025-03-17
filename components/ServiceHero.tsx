@@ -13,20 +13,20 @@ export function ServiceHero({
 }: ServiceHeroProps) {
   const handleBookDemo = () => {
     window.open(
-      "https://calendly.com/karansingh-ks7417/30min?month=2025-02",
+      process.env.NEXT_PUBLIC_CALENDLY_LINK,
       "_blank"
     );
   };
 
   return (
     <div className="relative pb-24">
-      <div className="absolute inset-0 z-0 h-[500px]">
-        <img
-          src={imageSrc || "/placeholder.svg"}
-          alt={title}
-          className="w-full h-full object-cover brightness-50"
-        />
-      </div>
+    <div className="absolute inset-0 z-0 h-[600px]">
+      <img
+        src={imageSrc || "/placeholder.svg"}
+        alt={title}
+        className="w-full h-full brightness-50 object-cover object-top"
+      />
+    </div>
 
       <div className="relative z-10 container mx-auto px-4 h-[500px] flex items-center">
         <div className="max-w-3xl text-white">

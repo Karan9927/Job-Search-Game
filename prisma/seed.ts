@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import { seedBadges } from "./badgeSeed";
-import { seedCategories } from "./categorySeed";
-import { seedSubCategories } from "./subCategorySeed";
+// import { seedBadges } from "./badgeSeed";
+// import { seedCategories } from "./categorySeed";
+// import { seedSubCategories } from "./subCategorySeed";
 import { createQuestionOne } from "./categoryOne/catOne";
 import { createQuestionTwo } from "./categoryOne/catTwo";
 import { createQuestionThree } from "./categoryOne/catThree";
@@ -14,13 +14,18 @@ import { createQuestionNine } from "./categoryThree/catThree";
 import { createQuestionTen } from "./categoryFour/catOne";
 import { createQuestionEleven } from "./categoryFour/catTwo";
 import { createQuestionTwelve } from "./categoryFour/catThree";
+import { seedLevelsAndPoints } from "./levelPointseed";
+import { seedBadges } from "./badgeSeed";
+import { seedCategories } from "./categorySeed";
+import { seedSubCategories } from "./subCategorySeed";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // await seedBadges();
-  // await seedCategories();
-  // await seedSubCategories();
+  await seedBadges();
+  await seedCategories();
+  await seedSubCategories();
+  await seedLevelsAndPoints();
   await createQuestionOne();
   await createQuestionTwo();
   await createQuestionThree();

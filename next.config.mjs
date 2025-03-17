@@ -8,6 +8,9 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverComponentsExternalPackages: ['@prisma/client', '@auth/prisma-adapter'],
+  },
 };
 
 export default nextConfig;

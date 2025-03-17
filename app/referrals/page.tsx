@@ -8,7 +8,7 @@ export default async function ReferralsPage() {
   const userId = session?.user.id;
 
   const referralCode = await getUserReferralCode(userId || "");
-  const referrals = await getUserReferrals(userId || "");
+  const referrals = await getUserReferrals(referralCode || "");
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

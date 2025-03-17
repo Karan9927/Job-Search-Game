@@ -16,6 +16,10 @@ export function getRoleName(role: string) {
   }
 }
 
+export const formatSalary = (salary: number): string => {
+  return salary.toLocaleString("en-IN");
+};
+
 export const formatDate = (dateString: string | null) => {
   if (!dateString) return "Present";
   const date = new Date(dateString);

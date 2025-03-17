@@ -8,7 +8,7 @@ export default function SkillsTestingPage() {
       <ServiceHero
         title="Skills Testing"
         description="Evaluate candidates' technical and soft skills with our comprehensive testing platform."
-        imageSrc="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1920&h=500&q=80"
+       imageSrc="https://guhuza.com/images/landing/skills_testing/hero.jpg"
       />
 
       <main className="flex-grow container mx-auto px-4 py-12">

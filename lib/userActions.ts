@@ -141,11 +141,11 @@ export async function getUserReferralCode(
   }
 }
 
-export async function getUserReferrals(userId: string) {
+export async function getUserReferrals(referralCode: string) {
   try {
     const userReferrals = await prisma.user.count({
       where: {
-        referredBy: userId,
+        referredBy: referralCode,
       },
     });
     return userReferrals;

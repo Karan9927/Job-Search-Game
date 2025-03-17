@@ -12,10 +12,10 @@ export const Referral = ({
   referrals,
 }: {
   inviteCode: string | null;
-  referrals: number | undefined; // Add this line
+  referrals: number | undefined; 
 }) => {
   const [code] = useState(inviteCode);
-  const [referralsCount, setReferralsCount] = useState(referrals || 0); // Example state, replace with actual data
+  const [referralsCount, setReferralsCount] = useState(referrals || 0); 
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(code || "");
@@ -42,12 +42,6 @@ export const Referral = ({
             <Copy className="mr-2 h-4 w-4" /> Copy Code
           </Button>
         </div>
-        {/* <Button
-          onClick={shareReferral}
-          className="w-full mt-4 text-lg py-6 bg-primary hover:bg-primary/90 transition-all duration-300"
-        >
-          <Share2 className="mr-2 h-5 w-5" /> Share Your Invite Code
-        </Button> */}
       </section>
 
       <section className="bg-background p-8 rounded-lg shadow-sm border border-border">
