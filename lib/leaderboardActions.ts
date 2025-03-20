@@ -1,4 +1,5 @@
 "use server";
+import { auth } from "@/auth";
 import prisma from "@/prisma/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -71,12 +72,20 @@ export async function getLeaderboardData(): Promise<LeaderboardEntry[]> {
   }
 }
 
-export async function updateLeaderboard(userId: string, points: number) {
-  if (!userId || points === undefined) {
+export async function updateLeaderboard(points: number) {
+  if (points === undefined) {
     throw new Error("Invalid userId or points");
   }
 
   try {
+    const session = await auth();
+
+    // If no user is logged in, return false
+    if (!session?.user?.id) {
+      return { completed: false };
+    }
+
+    const userId = session.user.id;
     const updateLeaderboard = await prisma.leaderboard.upsert({
       where: { userId },
       update: { totalPoint: { increment: points } },

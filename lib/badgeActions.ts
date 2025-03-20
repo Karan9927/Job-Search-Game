@@ -34,10 +34,6 @@ export async function getUserBadges(userId: string) {
 async function checkAndAssignBadges(userId: string) {
   const userProgress = await prisma.userLevelProgress.findMany({
     where: { userId },
-    include: {
-      level: true,
-      subcategory: true,
-    },
   });
 
   const userBadges = await prisma.userBadge.findMany({
@@ -63,15 +59,13 @@ async function checkAndAssignBadges(userId: string) {
   const userCompletedTasks = userProgress.length;
   const badgesToAssign = [];
 
-  // 1. Level Master Badge
   if (
-    userProgress.some((p) => p.level.id === 3) && 
+    userProgress.some((p) => p.levelId === 3) &&
     !userBadges.some((b) => b.badge.name === "Level Master")
   ) {
     badgesToAssign.push("Level Master");
   }
 
-  // 2. Points Accumulator Badge
   const totalScore = userPoints?.totalPoint;
   if (
     totalScore !== undefined &&
@@ -89,7 +83,6 @@ async function checkAndAssignBadges(userId: string) {
     badgesToAssign.push("Elite Challenger");
   }
 
-  // 3. Quiz Master Badge
   if (
     userCompletedTasks >= 40 &&
     !userBadges.some((b) => b.badge.name === "Quiz Master")
@@ -97,7 +90,6 @@ async function checkAndAssignBadges(userId: string) {
     badgesToAssign.push("Quiz Master");
   }
 
-  // 4. Task Completer Badge
   if (
     userCompletedTasks >= 80 &&
     !userBadges.some((b) => b.badge.name === "Task Completer")
@@ -105,7 +97,6 @@ async function checkAndAssignBadges(userId: string) {
     badgesToAssign.push("Task Completer");
   }
 
-  // 5. Badges Collector Badge
   if (
     userBadges.length >= 5 &&
     !userBadges.some((b) => b.badge.name === "Badges Collector")
@@ -113,7 +104,6 @@ async function checkAndAssignBadges(userId: string) {
     badgesToAssign.push("Badges Collector");
   }
 
-  // 7. High Scorer Badge
   if (
     totalScore !== undefined &&
     totalScore >= 6000 &&
@@ -122,16 +112,14 @@ async function checkAndAssignBadges(userId: string) {
     badgesToAssign.push("High Scorer");
   }
 
-  // 8. Category Conqueror Badge
   const categoryCompletionCounts: Record<string, number> = {};
 
   userProgress.forEach((progress) => {
-    const categoryId = progress.subcategory.id.toString();
+    const categoryId = progress.levelId.toString();
     categoryCompletionCounts[categoryId] =
       (categoryCompletionCounts[categoryId] || 0) + 1;
   });
 
-  // Check if any subcategory has all levels completed
   const hasCategoryConquerorBadge = Object.values(
     categoryCompletionCounts
   ).some((count) => count === 10);
@@ -143,7 +131,6 @@ async function checkAndAssignBadges(userId: string) {
     badgesToAssign.push("Category Conqueror");
   }
 
-  // 9. Referral Newbie Badge (1 referral)
   if (
     userReferrals >= 1 &&
     !userBadges.some((b) => b.badge.name === "Referral Newbie")
@@ -151,7 +138,6 @@ async function checkAndAssignBadges(userId: string) {
     badgesToAssign.push("Referral Newbie");
   }
 
-  // 10. Referral Expert Badge (5 referrals)
   if (
     userReferrals >= 5 &&
     !userBadges.some((b) => b.badge.name === "Referral Expert")

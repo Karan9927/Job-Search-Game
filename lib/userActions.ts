@@ -1,80 +1,58 @@
 "use server";
 
-import { signOut } from "@/auth";
+import { auth, signOut } from "@/auth";
 import { PrismaClient, Status } from "@prisma/client";
 import { hash } from "bcryptjs";
 import crypto from "crypto";
+import { revalidatePath } from "next/cache";
 import nodemailer from "nodemailer";
 
 const prisma = new PrismaClient();
 
-export async function saveUserAnswer(
-  userId: string,
-  questionId: number,
-  answer: number,
-  levelId: number,
-  subcategoryId: number
-) {
-  const isCorrect = await checkAnswerCorrectness(questionId, answer);
-
-  return prisma.userAnswerSubmission.create({
-    data: {
-      userId,
-      questionId,
-      answer: answer.toString(),
-      isCorrect,
-      levelId,
-      subcategoryId,
-    },
-  });
-}
-
-async function checkAnswerCorrectness(questionId: number, userAnswer: number) {
-  const question = await prisma.question.findUnique({
-    where: { id: questionId },
-    select: { correctAnswer: true },
-  });
-
-  return question ? userAnswer === question.correctAnswer : false;
-}
-
-export async function checkUserLevelProgress(
-  userId: string,
-  categoryId: number
-) {
+export async function submitUserAnswer(answer: string, isCorrect: boolean) {
   try {
-    const progress = await prisma.userLevelProgress.findMany({
-      where: {
-        userId: userId,
-        subcategory: {
-          categoryId: categoryId,
-        },
-      },
-      include: {
-        level: true,
-        subcategory: true,
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      throw new Error("You must be logged in to submit answers");
+    }
+
+    const userId = session.user.id;
+
+    const submission = await prisma.userAnswerSubmission.create({
+      data: {
+        userId,
+        answer,
+        isCorrect,
       },
     });
 
-    return progress;
+    revalidatePath("/quiz");
+
+    return { success: true, submission };
   } catch (error) {
-    console.error("Failed to fetch user progress", error);
-    return [];
+    console.error("Error submitting answer:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "An unknown error occurred",
+    };
   }
 }
 
-export async function saveUserLevelProgress(
-  userId: string,
-  levelId: number,
-  subcategoryId: number
-) {
+export async function saveUserLevelProgress(levelId: number) {
   try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return { completed: false };
+    }
+    const userId = session.user.id;
     const existingProgress = await prisma.userLevelProgress.findUnique({
       where: {
-        userId_levelId_subcategoryId: {
+        userId_levelId: {
           userId,
           levelId,
-          subcategoryId,
         },
       },
     });
@@ -84,7 +62,6 @@ export async function saveUserLevelProgress(
         data: {
           userId,
           levelId,
-          subcategoryId,
         },
       });
     }
@@ -96,28 +73,28 @@ export async function saveUserLevelProgress(
   }
 }
 
-export async function getPreviousAnswers(
-  userId: string,
-  subcategoryId: number,
-  levelId: number
-) {
+export async function checkLevelCompletion(levelId: number) {
   try {
-    const answers = await prisma.userAnswerSubmission.findMany({
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return { completed: false };
+    }
+
+    const userId = session.user.id;
+    const progress = await prisma.userLevelProgress.findUnique({
       where: {
-        userId,
-        subcategoryId,
-        levelId,
-        isCorrect: true,
-      },
-      select: {
-        questionId: true,
-        isCorrect: true,
+        userId_levelId: {
+          userId,
+          levelId,
+        },
       },
     });
-    return answers;
+
+    return { completed: !!progress };
   } catch (error) {
-    console.error("Failed to fetch previous answers:", error);
-    return [];
+    console.error("Error checking level completion:", error);
+    return { completed: false };
   }
 }
 
@@ -310,12 +287,15 @@ export async function submitApplication(
   }
 }
 
-export async function getUserPoints(userId: string): Promise<number | null> {
-  if (!userId) {
-    throw new Error("Invalid userId");
-  }
-
+export async function getUserPoints(): Promise<number | null> {
   try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      throw new Error("No logged iun user found !");
+    }
+
+    const userId = session.user.id;
     const user = await prisma.leaderboard.findUnique({
       where: { userId },
       select: { totalPoint: true },

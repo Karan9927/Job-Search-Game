@@ -1,5 +1,3 @@
-
-export const runtime = 'nodejs'; 
 import NextAuth, { User } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "./prisma/prisma";
@@ -18,7 +16,7 @@ declare module "next-auth" {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as any,
   pages: {
     signIn: "/login",
   },
@@ -53,7 +51,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        if (user.role.toLowerCase() !== credentials.role.toLowerCase()) {
+        if (
+          user.role.toLowerCase() !== (credentials.role as any).toLowerCase()
+        ) {
           throw new Error("Incorrect role selected"); // Role mismatch
         }
 
@@ -113,4 +113,3 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
-

@@ -141,66 +141,15 @@ model User {
   resetPasswordToken String?
   resetPasswordExpires DateTime?
 }
-
-model Category {
-  id          Int         @id @default(autoincrement())
-  name        String
-  description String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  subCategories SubCategory[] 
-}
-
-model SubCategory {
-  id          Int         @id @default(autoincrement())
-  name        String
-  description String?
-  categoryId  Int        
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade) 
-  questions   Question[]  
-  userLevelProgress UserLevelProgress[]
-  userAnswerSubmissions UserAnswerSubmission[]
-}
-
-model Question {
-  id            Int        @id @default(autoincrement())
-  level         Level      @relation(fields: [levelId], references: [id])
-  levelId       Int
-  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id]) 
-  subCategoryId Int?
-  question      String
-  correctAnswer Int
-  options       Json
-  points        Point      @relation(fields: [pointId], references: [id])
-  pointId       Int
-  createdAt     DateTime   @default(now())
-  userAnswerSubmissions UserAnswerSubmission[]
-}
-
-model Level {
-  id        Int        @id @default(autoincrement())
-  level     Int
-  point     Point      @relation(fields: [pointId], references: [id])
-  pointId   Int
-  createdAt DateTime   @default(now())
-  questions Question[] 
-  userProgress UserLevelProgress[]  
-  userAnswerSubmissions UserAnswerSubmission[]
-}
-
 model UserLevelProgress {
   id          Int        @id @default(autoincrement())
   userId      String     @map("user_id")
-  levelId     Int        @map("level_id")
+  levelId     Int     
   user        User       @relation(fields: [userId], references: [id])
-  level       Level      @relation(fields: [levelId], references: [id])
-  subcategory SubCategory @relation(fields: [subcategoryId], references: [id])
-  subcategoryId Int      
   createdAt   DateTime   @default(now())
 
-  @@unique([userId, levelId, subcategoryId])  
+ @@unique([userId, levelId])  
+  @@map("user_level_progress") 
 }
 
 model Badge {
@@ -208,7 +157,6 @@ model Badge {
   name            String
   description     String
   icon            String?
-  pointThreshold  String?      
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   userBadges      UserBadge[]  
@@ -236,28 +184,14 @@ model Leaderboard {
   createdAt  DateTime @default(now())
 }
 
-model Point {
-  id        Int      @id @default(autoincrement())
-  point     Int     
-  createdAt DateTime @default(now())
-  levels    Level[]  
-  questions Question[]
-}
-
 model UserAnswerSubmission {
   id            Int        @id @default(autoincrement())
   userId        String     @map("user_id")
-  questionId    Int        @map("question_id")
   answer        String    
   isCorrect     Boolean    
-  levelId       Int        @map("level_id")
-  subcategoryId Int        @map("subcategory_id")
   createdAt     DateTime   @default(now())
 
   user          User       @relation(fields: [userId], references: [id])
-  question      Question   @relation(fields: [questionId], references: [id])
-  level         Level      @relation(fields: [levelId], references: [id])
-  subcategory   SubCategory @relation(fields: [subcategoryId], references: [id])
 
   @@map("user_answer_submissions")
 }
